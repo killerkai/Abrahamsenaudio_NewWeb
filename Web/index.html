@@ -1,0 +1,546 @@
+﻿
+<html lang="no">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="date=no" />
+    <meta name="format-detection" content="address=no" />
+    <meta name="format-detection" content="email=no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <title></title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="//cdn.web2net.no/lib-1.0.0/css/az-1.0.0.min.css" />
+    <script src="//cdn.web2net.no/lib-1.0.0/js/az-1.0.0.min.js"></script>
+    <link rel="stylesheet" href="/lib/standard.css" />
+    <script src="/lib/functionlib.js"></script>
+    <script src="//cdn.web2net.no/lib-1.0.0/lib/az-codecolor.js"></script>
+    <script>
+        clientStorage( "set", "language", "en-US" );
+        LanguagePage = "lib/lang-val/index/index-lang.json";
+        ValidationPage = "lib/lang-val/index/index-form-val.json";
+        var produktliste = [];
+        var produktltillegg = [];
+        var ProductId = 0;
+        var productName = "";
+        var productCategory = "";
+
+        $( document ).ready( function ()
+        {
+            getContentData();
+        } );
+        function getContentData()
+        {
+            initializePage(
+                {
+                    setLanguageClientStorage: true,
+                    getLanguage: true,
+                    getValidation: true
+                }, function ()
+                {
+                    initializeSlideshow(
+                        {
+                            setArrows: true,
+                            timer: 5000,
+                            fadein: 2000,
+                            fadeout: 2000
+                        } );
+                    setContentInfo();
+                    hideCoverSpin();
+                } );
+            function setContentInfo()
+            {
+                formdirty = false;
+                $( "#" + ThisFormId ).show();
+                //$( "#cmdSubmit" ).click( function () { verifySubmit1(); } );
+                getProductData();
+            }
+
+        }
+        function getProductData()
+        {
+            $.ajaxSetup( { cache: false } );
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "api/get_product_data.asp",
+                    dataType: 'json',
+                    async: true,
+                    cache: false,
+                    timeout: 100000,
+                    error: function ()
+                    {
+                        console.log( "Ajax error, cant load products, file -get_product_data1.asp-" );
+                    },
+                    success: function ( responseText )
+                    {
+                        var _HTML = "";
+                        produktliste = responseText.produkt;
+                        produktltillegg = responseText.produkttillegg;
+
+
+                        $.each( produktliste, function ( i, val )
+                        {
+                            if ( val.webstatus == "ja" )
+                            {
+                                _HTML += '<div class="az-col xs-12 sm-6 md-6 az-margin-t-14">';
+                                _HTML += '<div class="az-card adjust" data-productid="' + val.produktid + '">';
+                                _HTML += '<img class="az-image" src="/img/products/' + val.bilde + '">';
+                                _HTML += '<article>';
+                                _HTML += '<name>' + val.produkt + '</name>';
+                                _HTML += '<adress>' + val.produktkategori + '</adress>';
+                                _HTML += '</article>';
+                                _HTML += '<div class="az-card-overlay">';
+                                _HTML += '<div class="az-card-overlay-card az-display-middle">';
+                                _HTML += '<article>';
+                                _HTML += '<h1 class="az-text-center product_link_text"></h1>';
+                                _HTML += '</article>';
+                                _HTML += '</div>';
+                                _HTML += '</div >';
+                                _HTML += '</div>';
+                                _HTML += '</div>';
+                            }
+                        } ),
+
+                            $( "#place_products" ).empty().append( _HTML );
+                        initializePage(
+                            {
+                                setLanguageClientStorage: true,
+                                getLanguage: true
+                            }, function ()
+                            {
+
+                                hideCoverSpin();
+                            } );
+                        var _$ProductCard = $( ".az-card" );
+                        _$ProductCard.off().on( "click", function ( e )
+                        {
+                            var _Element = e.target || e.srcElement;
+                            ProductId = Number( $( this ).attr( 'data-productid' ) );
+
+                            setModalProductInfo();
+                        } );
+                    }
+                } );
+            hideCoverSpin();
+
+        }
+        function setModalProductInfo()
+        {
+            console.log( ProductId );
+            console.log( produktliste );
+            console.log( produktltillegg );
+            $.each( produktliste, function ( i, val )
+            {
+                if ( val.produktid == ProductId )
+                {
+                    productName = val.produkt;
+                    productCategory = val.produktkategori;
+                }
+            } ),
+
+                console.log( productName );
+            initializeModalDialog(
+                {
+                    dialogTitle: productName + " - " + productCategory,
+                    dialogWidth: 800,
+                    dialogHeight: 800,
+                    dialogiFrameURL: "product_info.html",
+                    dialogPosition: true,
+                    dialogNoParentScroll: true,
+                    dialogModal: false
+                } );
+
+        }
+        function validateDirty()
+        {
+            formdirty = true;
+
+        }
+
+        function verifyCancel()
+        {
+            confirmCancel( function () { window.top.closeModalDialog() } );
+        }
+
+        function verifySubmit()
+        {
+            var _ObjForm = serializeForm( "#" + ThisFormId );
+            if ( isEmpty( _ObjForm ) == false )
+            {
+                showCoverSpin()
+                var _ObjSendMail = {};
+                var _HTML = "";
+                _HTML += '<p>Customer name: ' + _ObjForm.CustomerName + '</p>';
+                _HTML += '<p>Contact: ' + _ObjForm.Contact + '</p>';
+                _HTML += '<p>What is the request about: ' + $( "#RequestReasonId option:selected" ).text() + '</p>';
+                _HTML += '<p>Comment: ' + _ObjForm.Comment + '</p><br />';
+                _ObjSendMail.To = [ "post@abrahamsenaudio.com" ];
+                _ObjSendMail.From = _ObjForm.Email;
+                _ObjSendMail.Subject = "Inquiry Abrahamsen Audio";
+                _ObjSendMail.Body = _HTML;
+
+                var _HTML2 = "";
+                _HTML2 += '<p>Thank you for your inquiry!</p>';
+                _HTML2 += '<p>We have received the following information from you:</p><br />';
+                _HTML2 += _HTML;
+                _HTML2 += '<p>We will contact you as soon as possible.</p>';
+                _HTML2 += '<p>This is an automatically generated email, please do not reply to this.</p>';
+                _ObjSendMail.CopyToSender = true;
+                _ObjSendMail.CopyToSenderSubject = "Team Abrahamsen Audio";
+                _ObjSendMail.CopyToSenderBody = _HTML2;
+
+                var _ContactTransferClass = {};
+                _ContactTransferClass.TransferType = "sendmail";
+                _ContactTransferClass.ValidationType = "domain";
+                _ContactTransferClass.ObjSendMail = _ObjSendMail;
+
+                var _Options =
+                    {
+                        url: "https://api.web2net.no/api/sendmail/sendmail" + ApiVersion,
+                        headers:
+                            {
+                                "Authorization": "Bearer 7931AD57F8204D27B68067B228AA24487E90F6A30633881A66E71C24A01F093F892254AFBB5BDC5DBB98853A9B3455E06014C6868FA2C497E64A213B89511CAF"
+                            },
+                        exceptionErrorText: "SendMail"
+                    };
+                initializeAjax( _Options, _ContactTransferClass ).done( function ( data, textStatus, jqXHR )
+                {
+                    hideCoverSpin();
+                    if ( data.Transfer == "200" )
+                    {
+                        $( '#frmContact' )[0].reset();                        
+                        initializeAZWindow(
+                            {
+                                dialogTitle: "Thank you for your inquiry",
+                                dialogText: "We have received your inquiry and we will contact you as soon as possible.",
+                                dialogButton1: "Close",
+                                dialogClose: function () { parent.closeModalDialog(); }
+                            } );
+                    }
+                    else
+                    {
+                        throwException( "dialog", "", ThisPage, "verifySubmit:entityedit:Transfer:" + JSON.stringify( data.Transfer ), "SendMail" );
+                    }
+                } );
+            }
+        }
+
+    </script>
+    <style type="text/css">
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+
+    <form class="disabled-enter" id="frmContact">
+        <div class="az-navbar az-navbar-top az-navbar-sticky">
+            <div class="az-navbar-top-content">
+
+                <button type="button" class="az-navbar-button">&#9776;</button>
+
+                <div class="az-navbar-menu-wrapper">
+                    <ul class="az-navbar-menu az-left">
+                        <li id="menu1"><a href="#home"><span class="menu1"></span></a></li>
+                        <li id="menu2"><a href="#products"><span class="menu2"></span></a></li>
+                        <li id="menu3"><a href="#about_us"><span class="menu3"></span></a></li>
+                        <li id="menu4"><a href="#service"><span class="menu4"></span></a></li>
+                        <li id="menu5"><a href="#contact_us"><span class="menu5"></span></a></li>
+                    </ul>
+
+                    <ul class="az-navbar-menu az-right desktop-only">
+                        <li><a href="https://www.facebook.com/AbrahamsenAudio/" title="Facebook" target="_blank"><i class="fab fa-facebook-square fa-fw az-gray"></i></a></li>
+                        <li><a href="https://twitter.com/abrahamsenaudio" title="Twitter" target="_blank"><i class="fab fa-twitter-square fa-fw az-gray"></i></a></li>
+                        <li><a href="https://www.instagram.com/abrahamsenaudio/" title="Twitter" target="_blank"><i class="fab fa-instagram fa-fw az-gray"></i></a></li>
+                        <li><a href="#"><i class="fas fa-language az-gray"></i></a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <div id="home" class="az-section az-bg-white" style="height: 1200px;">
+            <div class="az-container-fluid">
+
+                <div class="az-row">
+                    <div class="az-col xs-12 az-padding-t-56">
+
+                        <div class="az-slideshow">
+
+                            <div class="az-slides">
+                                <slide>
+                                    <img src="/img/ab_banner_sign.jpg">
+                                </slide>
+                                <slide>
+                                    <img src="/img/ab_banner_utsikt.jpg">
+                                </slide>
+                                <slide>
+                                    <img src="/img/ab_banner_adac.jpg">
+                                </slide>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="az-row az-padding-t-28">
+                    <ul class="az-ul-none az-navbar-menu">
+                        <li class="az-col xs-12 md-4 ">
+                            <a href="#products">
+                                <div id="section-container-1-col-1" class="az-margin-14 az-white az-bg-gray az-circle-10">
+                                    <h1 class="az-xs-text-xlarge az-sm-text-xxlarge az-text-uppercase az-text-center az-padding-7 menu2"></h1>
+                                    <p class="az-text-center az-padding-b-56"><img alt="" class="az-xs-width-40 az-sm-width-30 az-lg-width-40 az-circle-50" src="/img/product.png" /></p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="az-col xs-12 md-4">
+                            <a href="#about_us">
+                                <div id="section-container-1-col-2" class="az-margin-14 az-white az-bg-gray az-circle-10">
+                                    <h1 class="az-xs-text-xlarge az-sm-text-xxlarge az-text-uppercase az-text-center az-padding-7 menu3"></h1>
+                                    <p class="az-text-center az-padding-b-56"><img alt="" class="az-xs-width-40 az-sm-width-30 az-lg-width-40 az-circle-50" src="/img/our_history.jpg" /></p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="az-col xs-12 md-4">
+                            <a href="#service">
+                                <div id="section-container-1-col-3" class="az-margin-14 az-white az-bg-gray az-circle-10">
+                                    <h1 class="az-xs-text-xlarge az-sm-text-xxlarge az-text-uppercase az-text-center az-padding-7 menu4"></h1>
+                                    <p class="az-text-center az-padding-b-56"><img alt="" class="az-xs-width-40 az-sm-width-30 az-lg-width-40 az-circle-50" src="/img/service.png" /></p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="products" class="az-section">
+            <div class="az-container">
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h1 class="az-xs-text-xlarge az-sm-text-xxlarge az-text-uppercase az-padding-7 menu2"></h1>
+                    </div>
+                </div>
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h5 class="az-padding-l-14 az-padding-r-14 az-text-justify">
+                            High-end audio production is part of our heritage. Our 40 years of experience and know-how provide invaluable benefits for our production facility as well as in our close co-operation with our global suppliers. We have chosen to work with only a few suppliers that share our
+                            commitment to high quality. This way we are in control of the entire production process ensuring the highest quality every step of the way.
+                        </h5>
+                    </div>
+                </div>
+                <div id="place_products" class="az-row az-margin-t-28 az-margin-b-56">
+                </div>
+            </div>
+        </div>
+
+        <div id="about_us" class="az-section az-bg-teal">
+            <div class="az-container">
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h1 class="az-xs-text-xlarge az-sm-text-xxlarge az-text-uppercase az-padding-7 menu3"></h1>
+                    </div>
+                </div>
+                <div class="az-row">
+                    <div class="az-col xs-12 lg-5">
+                        <p><img alt="" class="az-padding-l-14 az-xs-width-80 az-sm-width-60 az-lg-width-60" src="/img/per_abrahamsen.jpg" /></p>
+                        <p class="az-padding-l-14 az-text-tiny az-text-opacity-50">Per 'ABE' Abrahamsen in Mojo Blues</p>
+                    </div>
+
+                    <div class="az-col xs-12 lg-7">
+                        <h6 class="az-padding-l-14 az-padding-r-14 az-margin-t-28 az-text-justify">
+                            In 1972 Dr. Otala and Dr. Lohstroh finished their work in analysing transistor amplifiers to determine what actully created the "transistor sound" in general transistorised designs. The results of their innovative design work were incorporated in the legendary 25 watt amplifier. This product was the first commercial transistor amplifier to use this new design approach, and the amplifier was immediately recognised as dramatically more musical sounding than any other transistor amplifier. The same design philosophy, has been constantly updated by additional research and development.<br />
+                            <br />After the 25 watt amplifier had established a new standard for transistor amplifiers, research was undertaken to find ways to make the amplifier even better, and to extend its highly musical sound quality to more powerful amplifier designs.<br />
+                            <br />This philosophy forms the basis of the new Abrahamsen design.<br /><br />Abrahamsen maintains an extensive set of internal controls to ensure that products are designed, manufactured and supported to the highest standards. A dedicated staff of incoming, intermediate and finished product quality inspectors and auditors ensures that Abrahamsen's products are manufactured to exact specifications.
+                        </h6>
+                    </div>
+                </div>
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h4 class="az-padding-l-14 az-padding-t-28 az-silver">Our Work Process</h4>
+                    </div>
+                    <div class="az-col xs-12 md-3">
+                        <h5 class="az-padding-l-14 az-padding-t-28 az-silver">EXPLORE</h5>
+                        <h6 class="az-padding-l-14 az-padding-r-14">In our research of what separates the great designers from good designers, we saw that the great designers spent a lot more time trying to understand the problem. They really dove in deep, focusing on all the aspects of how their design would be used.</h6>
+                    </div>
+                    <div class="az-col xs-12 md-3">
+                        <h5 class="az-padding-l-14 az-padding-t-28 az-silver">DESIGN</h5>
+                        <h6 class="az-padding-l-14 az-padding-r-14">Design is sometimes thought to be about form, style, and how things look, but it’s also very much about function, or what something does. With new technologies making it possible to develop new functions, this is now more true than ever.</h6>
+                    </div>
+                    <div class="az-col xs-12 md-3">
+                        <h5 class="az-padding-l-14 az-padding-t-28 az-silver">PRODUCTION</h5>
+                        <h6 class="az-padding-l-14 az-padding-r-14">A dedicated staff of incoming, intermediate and finished product quality inspectors and auditors ensures that Abrahamsen's products are manufactured to exact specifications. We have chosen to work with only a few suppliers that share our commitment to high quality.</h6>
+                    </div>
+                    <div class="az-col xs-12 md-3">
+                        <h5 class="az-padding-l-14 az-padding-t-28 az-silver">DELIVER</h5>
+                        <h6 class="az-padding-l-14 az-padding-r-14">Abrahamsen maintains an extensive set of internal controls to ensure that products are designed, manufactured and supported to the highest standards. This way we are in control of the entire production process ensuring the highest quality every step of the way.</h6>
+                    </div>
+                </div>
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h5 class="az-padding-t-56 az-padding-b-28 az-text-center">
+                            <b>We strongly believe that uncompromising quality is not an option - it's an obligation.</b>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="service" class="az-section">
+            <div class="az-container">
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h1 class="az-xs-text-xlarge az-sm-text-xxlarge az-text-uppercase az-padding-7 menu4"></h1>
+                    </div>
+                </div>
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h6 class="az-padding-t-14 az-padding-b-28 az-padding-l-14 az-padding-r-14">
+                            Welcome to our service department. We offer several upgrade options for products from Abrahamsen audio and Electrocompaniet.
+                        </h6>
+                    </div>
+                </div>
+                <div class="az-row">
+                    <div class="az-col xs-12 md-6">
+                        <h6 class="az-padding-l-14 az-padding-r-14 az-padding-t-28"><b>UPGRADES ABRAHAMSEN AUDIO</b></h6>
+                        <h6 class="az-padding-l-14 az-padding-r-14 az-text-justify">Upgrade your V series product to V series UP. When upgrading your Abrahamsen product, you will notice a deeper, tighter bass, bigger "soundstage" and more air and details in the higher frequency area.<br /><br />The tonality of your Abrahamsen products will not be changed with these upgrades. The upgrades are very noticeable.</h6>
+                    </div>
+                    <div class="az-col xs-12 md-6">
+                        <p class="az-padding-l-14 az-padding-r-14 az-padding-t-28"><b>Upgrade consists of</b></p>
+                        <ul>
+                            <li>New improved display (light blue background with dark blue lettering, significantly better readability)</li>
+                            <li>New remote control receiver. (significantly better reception)</li>
+                            <li>Doubling of electrolytes in power supply. (Noticeable sonic improvement) V2.0 / V4.0</li>
+                            <li>Changing the emitter resistor card for higher class A operation and greater linjeritet. V2.0 / V4.0</li>
+                            <li>New CD front tray. (brushed aluminum)</li>
+                            <li>Improved software.</li>
+                            <li>New "Upgrade" sign on the top lid.</li>
+                        </ul>
+                        <p class="az-padding-l-14 az-padding-r-14 az-padding-t-28"><b>Price</b></p>
+                        <ul>
+                            <li>V1.0 1500,- | V2.0 2500,-</li>
+                            <li>V3.0 1200,- | V4.0 2500,-</li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+            <div class="az-container">
+                <div class="az-row">
+                    <div class="az-col xs-12 md-6">
+                        <h6 class="az-padding-l-14 az-padding-r-14 az-padding-t-28"><b>UPGRADES ELECTROCOMPANIET</b></h6>
+                        <h6 class="az-padding-l-14 az-padding-r-14 az-text-justify">With over 30 years experience with Electrocompaniet, no one knows your product like us. When upgrading your Electrocompaniet product, you will notice a deeper, tighter bass, bigger "soundstage" and more air and details in the higher frequency area.<br /><br />The tonality of your Electrocompaniet products will not be changed with these upgrades.</h6>
+                    </div>
+                    <div class="az-col xs-12 md-6">
+                        <p class="az-padding-l-14 az-padding-r-14 az-padding-t-28"><b>Upgrade consists of</b></p>
+                        <ul>
+                            <li>High speed rectifier diodes. Faster/ better transients.</li>
+                            <li>New output transistors. More linear lower distortion. (Power and Integrated amplifier)</li>
+                        </ul>
+                        <p class="az-margin-l-14 az-margin-r-14 az-margin-t-28"><b>Price</b></p>
+                        <ul>
+                            <li>NEMO par 11.995,-       | AW250 7.000,-</li>
+                            <li>AW180 par 7.000,-       | AW120,100 3.800,-</li>
+                            <li>AW220,60 2.800,-        | ECI1 3.800,-</li>
+                            <li>ECI2, 3, 4 2.800,-      | EMC1UP 1.500,-</li>
+                            <li>EMC1 without UPCC 1.500,-</li>
+                            <li>EC4.5, 4.6, 4.7 1.500,-</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="az-row">
+                    <div class="az-col xs-12">
+                        <h6 class="az-padding-b-28 az-padding-t-28 az-text-center">All prices are incl. VAT. excluding shipping. in NOK.</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="contact_us" class="az-section az-bg-teal" style="height: 1200px;">
+            <div class="az-container">
+                <h1 class="az-xs-text-xlarge az-sm-text-xxlarge az-text-uppercase az-padding-7 menu5"></h1>
+
+                <div class="az-container-fluid">
+
+                    <div class="az-row az-padding-t-14">
+                        <div class="az-col xs-12 sm-6">
+                            <div class="az-form-group xs az-padding-l-14 az-padding-r-14">
+                                <label class="az-label" for="CustomerName" id="labelCustomerName"></label>
+                                <input type="text" class="az-input" id="CustomerName" />
+                            </div>
+                        </div>
+                        <div class="az-col xs-12 sm-6">
+                            <div class="az-form-group xs az-padding-l-14 az-padding-r-14">
+                                <label class="az-label" for="Contact" id="labelContact"></label>
+                                <input type="text" class="az-input" id="Contact" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="az-row">
+                        <div class="az-col xs-12 sm-6">
+                            <div class="az-form-group xs az-padding-l-14 az-padding-r-14">
+                                <label class="az-label" for="Email" id="labelEmail"></label>
+                                <input type="text" class="az-input" id="Email" />
+                            </div>
+                        </div>
+                        <div class="az-col xs-12 sm-6">
+                            <div class="az-form-group xs az-padding-l-14 az-padding-r-14">
+                                <label class="az-label" for="RequestReasonId" id="labelRequestReasonId"></label>
+                                <select class="az-select" id="RequestReasonId">
+                                    <option></option>
+                                    <option value="1">Buy</option>
+                                    <option value="2">Service</option>
+                                    <option value="2">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="az-row">
+                        <div class="az-col xs-12">
+                            <div class="az-form-group xs az-padding-l-14 az-padding-r-14">
+                                <label class="az-label" for="Comment" id="labelComment"></label>
+                                <textarea class="az-textarea" id="Comment"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="az-row az-margin-t-14 az-margin-b-14">
+                        <div class="az-col xs-12 sm-6">
+                            <div class="az-form-group xs az-padding-l-14 az-padding-r-14">
+                                <!--<button type="button" class="az-button az-button-block info az-shadow-1 az-shadow-hover-2 cancel" id="cmdClose"></button>-->
+                            </div>
+                        </div>
+                        <div class="az-col xs-12 sm-6">
+                            <div class="az-form-group xs az-padding-l-14 az-padding-r-14">
+                                <button type="button" class="az-button az-button-block primary az-shadow-1 az-shadow-hover-2 submit" id="cmdSubmit"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+    </form>
+    </div>
+    </div>
+    <div class="az-navbar az-navbar-bottom az-navbar-sticky mobile-only">
+        <div class="az-navbar-bottom-content az-padding-b-14">
+            <ul class="az-navbar-menu">
+                <li><a href="https://www.facebook.com/AbrahamsenAudio/" title="Facebook" target="_blank"><i class="fab fa-facebook-square fa-fw az-gray"></i></a></li>
+                <li><a href="https://twitter.com/abrahamsenaudio" title="Twitter" target="_blank"><i class="fab fa-twitter-square fa-fw az-gray"></i></a></li>
+                <li><a href="https://www.instagram.com/abrahamsenaudio/" title="Instagram" target="_blank"><i class="fab fa-instagram fa-fw az-gray"></i></a></li>
+                <li><a href="#"><i class="fas fa-language az-gray"></i></a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="az-navbar az-navbar-bottom az-navbar-sticky">
+        <div class="az-navbar-bottom-content ka-text-center">
+            <h6 class="az-col xs-12 az-gray az-text-tiny"><i class="fas fa-copyright fa-fw "></i>2019 Abrahamsen Audio AS</h6>
+        </div>
+    </div>
+
+
+</body>
+</html>

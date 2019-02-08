@@ -1,0 +1,79 @@
+﻿<html lang="no">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="date=no" />
+    <meta name="format-detection" content="address=no" />
+    <meta name="format-detection" content="email=no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <title></title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="//cdn.web2net.no/lib-1.0.0/css/az-1.0.0.min.css" />
+    <script src="//cdn.web2net.no/lib-1.0.0/js/az-1.0.0.min.js"></script>
+    <link rel="stylesheet" href="/lib/standard.css" />
+    <script src="/lib/functionlib.js"></script>
+    <script src="//cdn.web2net.no/lib-1.0.0/lib/az-codecolor.js"></script>
+    <script>
+        $( document ).ready( function ()
+        {
+            setContentInfo();
+        } );
+
+        function setContentInfo()
+        {
+            getProductData();
+        }
+        function getProductData()
+        {
+            hideCoverSpin();
+            var _HTML = "";
+            $.each( parent.produktliste, function ( i, val )
+            {
+                if ( val.produktid == parent.ProductId )
+                {
+                    imageSrc = "/img/products/" + val.bilde;
+                    $( "img#productImage" ).attr( 'src', $( "img#productImage" ).attr( 'src' ) + imageSrc );
+                    $( "#productInfo" ).text( val.produktbeskrivelse );
+                    $( "#productWidth" ).text( val.produktbredde );
+                    $( "#productDepth" ).text( val.produktdybde );
+                    $( "#productHeight" ).text( val.produkthoyde );
+                    $( "#productWeight" ).text( val.produktvekt );
+                }
+            } );
+            $.each( parent.produktltillegg, function ( i, val )
+            {
+                if ( val.produktid == parent.ProductId )
+                {
+                    _HTML += '<i>' + val.tilleggtekst + ' | </i>';
+                }
+            } );
+            $( "#productSpecifications" ).empty().append( _HTML );
+        }
+    </script>
+</head>
+<body>
+    <div class="az-container-fluid">
+        <div class="az-row az-margin-t-28">
+            <div class="az-col xs-12">
+                <div class="az-card adjust">
+                    <img class="az-image" id="productImage" src="">
+                    <article>
+                        <phone id="productInfo"></phone>
+                        <phone class="az-margin-t-14">Specifications</phone>
+                        <phone id="productSpecifications"></phone>
+                        <phone class="az-margin-t-14">Dimension</phone>
+                        <phone class="az-margin-b-28">Width:<i id="productWidth"></i><i>Cm -</i>Depth:<i id="productDepth"></i><i>Cm -</i>Height:<i id="productHeight"></i><i>Cm -</i>Weight:<i id="productWeight"></i><i>Kg</i></phone>
+                    </article>
+                </div>
+                <div class="az-row az-margin-b-28"></div>
+                </div>
+            </div>
+    </div>
+</body>
+</html>

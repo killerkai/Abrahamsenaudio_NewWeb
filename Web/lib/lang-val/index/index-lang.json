@@ -1,0 +1,53 @@
+﻿{
+  "ObjElements": {
+    "en-US": [
+      { "menu1": [ "class", "text", " Home" ] },
+      { "menu2": [ "class", "text", " Products" ] },
+      { "menu3": [ "class", "text", " About Us" ] },
+      { "menu4": [ "class", "text", " Service" ] },
+      { "menu5": [ "class", "text", " Contact Us" ] },
+      { "product_link_text": [ "class", "text", "Read more" ] },
+      { "labelCustomerName": [ "id", "text", "Customer name:" ] },
+      { "labelContact": [ "id", "text", "Contact:" ] },
+      { "labelEmail": [ "id", "text", "Email:" ] },
+      { "labelRequestReasonId": [ "id", "text", "What is the request about?" ] },
+      { "labelComment": [ "id", "text", "Comment:" ] },
+      { "cmdSubmit": [ "id", "text", "Send" ] },
+      { "cmdSubmit": [ "id", "title", "Click to send" ] }
+
+    ],
+    "nb-NO": [
+      { "menu1": [ "class", "text", " Hjem" ] },
+      { "menu2": [ "class", "text", " Produkter" ] },
+      { "menu3": [ "class", "text", " Om oss" ] },
+      { "menu4": [ "class", "text", " Service" ] },
+      { "menu5": [ "class", "text", " Kontakt oss" ] },
+      { "product_link_text": [ "class", "text", "Les mer" ] },
+      { "labelCustomerName": [ "id", "text", "Firma:" ] },
+      { "labelContact": [ "id", "text", "Kontaktperson:" ] },
+      { "labelEmail": [ "id", "text", "E-post:" ] },
+      { "labelRequestReasonId": [ "id", "text", "Hva gjelder henvendelsen?" ] },
+      { "labelComment": [ "id", "text", "Kommentar:" ] },
+      { "cmdSubmit": [ "id", "text", "Send" ] },
+      { "cmdSubmit": [ "id", "title", "Klikk for å sende" ] }
+
+    ]
+  },
+  "SingleElements": {
+    "en-US": {
+      "CustomerNameSubmitError": "Customer is empty or contains invalid characters.",
+      "ContactSubmitError": "Contact is empty or contains invalid characters.",
+      "EmailSubmitError": "Email is empty or contains invalid characters.",
+      "CommentSubmitError": "Comment is empty or contains invalid characters.",
+      "RequestReasonIdSubmitError": "Request is not selected."
+
+    },
+    "nb-NO": {
+      "CustomerNameSubmitError": "Firma er tomt eller inneholder ugyldige tegn",
+      "ContactSubmitError": "Kontaktperson er tomt eller inneholder ugyldige tegn.",
+      "EmailSubmitError": "E-post er tomt eller inneholder ugyldige tegn.",
+      "CommentSubmitError": "Kommentar er tomt eller inneholder ugyldige tegn.",
+      "RequestReasonIdSubmitError": "Henvendelse er ikke valgt."
+    }
+  }
+}

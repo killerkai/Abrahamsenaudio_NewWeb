@@ -1,0 +1,41 @@
+﻿{
+  "CustomerName": {
+    "label": "optional",
+    "data-attr": "val",
+    "maxlength": "100",
+    "class": "validate validate-alpha",
+    "datatype": "string",
+    "tabindex": 0
+  },
+  "Contact": {
+    "label": "mandatory",
+    "data-attr": "val",
+    "maxlength": "50",
+    "class": "validate validate-alpha",
+    "datatype": "string",
+    "tabindex": 1
+  },
+  "Email": {
+    "label": "mandatory",
+    "data-attr": "val",
+    "maxlength": "100",
+    "class": "validate validate-email",
+    "datatype": "string",
+    "tabindex": 2
+  },
+  "RequestReasonId": {
+    "label": "mandatory",
+    "data-attr": "val",
+    "class": "validate validate-numeric",
+    "datatype": "int",
+    "tabindex": 3
+  },
+  "Comment": {
+    "label": "mandatory",
+    "data-attr": "val",
+    "maxlength": "255",
+    "class": "validate validate-alpha",
+    "datatype": "string",
+    "tabindex": 4
+  }
+}
